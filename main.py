@@ -1,6 +1,8 @@
 import argparse
 import json
 
+import numpy as np
+
 from PIL import Image
 
 
@@ -19,7 +21,8 @@ def create_word(word: str) -> tuple[Image.Image, int]:
         if img_path is not None:
             img = Image.open(img_path)
             images.append(img)
-            images.append(padding)
+            if char != "l":
+                images.append(padding)
         else:
             print(f"Character '{char}' not in text -> image mapping. Skipping...")
 
@@ -103,7 +106,11 @@ if __name__ == "__main__":
     parser.add_argument("text", nargs="+", help="The text input.")
 
     args = parser.parse_args()
-    print(args.text)
-    print(args.width)
+
+    print(f"Pixelizing the following text: \n{args.text}")
     image = create_image(args.text, args.width)
     image.save("output.png")
+
+    arr = np.array(image)
+    pixels = np.sum(np.all(arr == [0, 0, 0], axis=-1))
+    print(f"\nTotal pixels required: {pixels}")
