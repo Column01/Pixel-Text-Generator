@@ -16,12 +16,18 @@ space = Image.new("RGB", (3, 8), (255, 255, 255))
 
 def create_word(word: str) -> tuple[Image.Image, int]:
     images: list[Image.Image] = []
-    for char in word:
+    for i, char in enumerate(word):
         img_path = mapping.get(char, None)
         if img_path is not None:
             img = Image.open(img_path)
             images.append(img)
+            # Skip padding for letters if the character is a lowercase "l" or if the character is before a lowercase "l"
+            # It has two pixels of padding on either side already
             if char != "l":
+                if len(word) > i + 1:
+                    next_char = word[i + 1]
+                    if next_char == "l":
+                        continue
                 images.append(padding)
         else:
             print(f"Character '{char}' not in text -> image mapping. Skipping...")
