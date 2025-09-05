@@ -112,7 +112,8 @@ if __name__ == "__main__":
     parser.add_argument("text", nargs="+", help="The text input.")
 
     args = parser.parse_args()
-
+    if len(args.text) == 1:
+        args.text = args.text[0].split(" ")
     print(f"Pixelizing the following text: \n{args.text}")
     image = create_image(args.text, args.width)
     image.save("output.png")
