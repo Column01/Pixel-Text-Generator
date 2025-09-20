@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image
 
 
-with open("mapping.json", "r") as fp:
+with open("mapping.json", "r", encoding="utf-8") as fp:
     mapping = json.load(fp)
 
 
@@ -49,14 +49,18 @@ def create_image(text: list[str], width=80):
     line: list[tuple[Image.Image, int]] = []
     longest_line = 0
     line_length = 0
+
     for word in text:
+        if word == "":
+            continue
         image_word, word_width = create_word(word)
         if line_length + word_width >= width:
             # Word is too long for this line, start a new line
             # Remove last empty space from the line
-            line.pop()
-            final.append(line.copy())
-            line.clear()
+            if len(line) > 0:
+                line.pop()
+                final.append(line.copy())
+                line.clear()
             # Add the first word to the new line
             line.append(image_word)
             line.append(space)
@@ -109,13 +113,24 @@ if __name__ == "__main__":
     parser.add_argument(
         "--width", "-w", type=int, help="The max width in pixels as an integer."
     )
-    parser.add_argument("text", nargs="+", help="The text input.")
+    parser.add_argument(
+        "--path",
+        "-p",
+        type=str,
+        help="A file path to a .txt file containing text to pixelize",
+        required=True,
+    )
 
     args = parser.parse_args()
-    if len(args.text) == 1:
-        args.text = args.text[0].split(" ")
-    print(f"Pixelizing the following text: \n{args.text}")
-    image = create_image(args.text, args.width)
+    text = None
+
+    if args.path:
+        with open(args.path, "r", encoding="utf-8") as fp:
+            text = fp.read()
+            text = text.replace("\n", "").split(" ")
+
+    print(f"Pixelizing the following text: \n{text}")
+    image = create_image(text, args.width)
     image.save("output.png")
 
     arr = np.array(image)
