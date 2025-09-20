@@ -120,6 +120,7 @@ if __name__ == "__main__":
         help="A file path to a .txt file containing text to pixelize",
         required=True,
     )
+    parser.add_argument("--output", "-o", type=str, help="The output file name"),
 
     args = parser.parse_args()
     text = None
@@ -130,8 +131,14 @@ if __name__ == "__main__":
             text = text.replace("\n", "").split(" ")
 
     print(f"Pixelizing the following text: \n{text}")
-    image = create_image(text, args.width)
-    image.save("output.png")
+    image = create_image(text, width=args.width)
+
+    output = "output.png"
+    if args.output:
+        output = args.output
+        if not output.endswith(".png"):
+            output = output + ".png"
+    image.save(output)
 
     arr = np.array(image)
     pixels = np.sum(np.all(arr == [0, 0, 0], axis=-1))
